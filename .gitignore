@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.ipynb_checkpoints/
+.ipynb_checkpoints
+
+# Environment
+.env
+*.env
+.env.postgres
+# OS
+.DS_Store
+Thumbs.db
+
+# Data — do not commit raw or processed data (ENTSO-E ToS prohibits redistribution)
+data/
+*.csv
+*.parquet
+*.feather
+*.json.gz
+*.pkl
+*.pickle
+
+# Notebooks — strip outputs before committing; never commit notebooks with raw data in cells
+# Use: jupyter nbconvert --clear-output --inplace notebooks/*.ipynb
