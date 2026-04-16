@@ -48,7 +48,7 @@ def _fetch_generation(
     """Fetch actual aggregated renewable generation for a country zone.
 
     Extracts Solar, Wind Offshore, and Wind Onshore from the full generation mix.
-    Returns a DataFrame with columns: country_code, time_stamp, Solar, Wind Offshore, Wind Onshore (all MW).
+    Returns a DataFrame with columns: country_code, time_stamp, solar_generation, wind_generation_off, wind_generation_on (all MW).
     """
     df = client.query_generation(country_code, start=pd.Timestamp(start_date, tz=time_zone), end=pd.Timestamp(end_date, tz=time_zone))
 
@@ -58,6 +58,11 @@ def _fetch_generation(
     df_aggreg = df.xs('Actual Aggregated', axis=1, level=1)
 
     df_renewable = df_aggreg[['Solar', 'Wind Offshore', 'Wind Onshore']].copy()
+    df_renewable = df_renewable.rename(columns={
+        'Solar': 'solar_generation',
+        'Wind Offshore': 'wind_generation_off',
+        'Wind Onshore': 'wind_generation_on',
+    })
     df_renewable.insert(0, "time_stamp", timestamps)
     df_renewable.insert(0, "country_code", country_code)
 
@@ -85,7 +90,6 @@ def _fetch_flows(
         df = df.reset_index()
         df.columns = ["time_stamp", "flow_mw"]
         df.insert(1, "to_zone", country_to)
-        print(df)
         frames.append(df)
     
     df_flow = pd.concat(frames,axis=0)
@@ -134,13 +138,10 @@ def load_entso_e(
                             end_date,
                             neighbors)
     frames = {
-    "entso_e_load": df_load,
-    "entso_e_generation": df_generation,
-    "entso_e_flows": df_flows
-    }
+            "entso_e_load": df_load,
+            "entso_e_generation": df_generation,
+            "entso_e_flows": df_flows
+            }
            
     
     return frames
-
-# if __name__ == "__main__":
-#     _fetch_flow(COUNTRY_CODE, NEIGHBORS, "2023-01-01", "2023-01-07")

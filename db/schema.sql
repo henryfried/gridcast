@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS entso_e_load;
 CREATE TABLE entso_e_load(
     data_id SERIAL PRIMARY KEY,
     time_stamp TIMESTAMPTZ NOT NULL,
-    bidding_zone TEXT NOT NULL,
+    country_code TEXT NOT NULL,
     total_load DOUBLE PRECISION
 );
 
@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS entso_e_generation;
 CREATE TABLE entso_e_generation(
     data_id SERIAL PRIMARY KEY,
     time_stamp TIMESTAMPTZ NOT NULL,
-    bidding_zone TEXT NOT NULL,
+    country_code TEXT NOT NULL,
     solar_generation DOUBLE PRECISION,
     wind_generation_off DOUBLE PRECISION,
     wind_generation_on DOUBLE PRECISION

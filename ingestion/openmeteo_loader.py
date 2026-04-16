@@ -50,7 +50,7 @@ def _fetch_location(
 
     hourly = response.json()["hourly"]
     df = pd.DataFrame(hourly)
-    df["time"] = pd.to_datetime(df["time"])
+    df["time"] = pd.to_datetime(df["time"]).dt.tz_localize("Europe/Berlin").dt.tz_convert("UTC")
     df.rename(columns={"time": "time_stamp"}, inplace=True)
     df.insert(0, "loc", name)
     return df
@@ -113,3 +113,5 @@ def load_weather(
         frames.append(df)
 
     return pd.concat(frames, ignore_index=True)
+# if __name__ == "__main__":
+#     _fetch_location(BIDDING_ZONE, "2023-01-01", "2023-01-07")
