@@ -9,12 +9,6 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  # app:
-  #   build: .
-  #   # environment:
-  #   #   DATABASE_URL: postgresql://myuser:mypassword@db:5432/mydb
-  #   depends_on:
-  #     - db
 
 volumes:
   pgdata:
