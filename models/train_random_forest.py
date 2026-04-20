@@ -1,0 +1,29 @@
+
+from sklearn.ensemble import RandomForestRegressor
+
+from models.utils import load_df, scale_features, scale_targets
+from models.features import build_features
+
+def random_forest(db_name: str, train_years: list[int], test_years: list[int], **kwargs):
+    X_train, y_train = build_features(load_df(db_name, train_years))
+    X_test, y_test = build_features(load_df(db_name, test_years))
+    X_train_scaled, X_test_scaled, _ = scale_features(X_train, X_test)
+    y_train_scaled, y_scaler  = scale_targets(y_train)
+    
+    model = RandomForestRegressor(
+            n_estimators=kwargs.get('n_estimators', 100),
+            max_depth=kwargs.get('max_depth', 15),
+            min_samples_leaf=kwargs.get('min_samples_leaf', 10),
+            n_jobs=kwargs.get('n_jobs', -1),
+            random_state=kwargs.get('random_state', 42)
+        )
+    print("Training random forrest ...")
+    model.fit(X_train_scaled, y_train_scaled)
+    print("Done.")
+    predictions = model.predict(X_test_scaled)
+    pred_scaled = y_scaler.inverse_transform(predictions)
+    return model, pred_scaled, y_test
+
+
+
+
