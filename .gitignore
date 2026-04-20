@@ -43,3 +43,8 @@ data/
 
 # Notebooks — strip outputs before committing; never commit notebooks with raw data in cells
 # Use: jupyter nbconvert --clear-output --inplace notebooks/*.ipynb
+*.ipynb
+
+.claude/
+.sqlfluff
+
