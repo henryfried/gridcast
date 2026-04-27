@@ -18,7 +18,8 @@ def dummy_X_test():
 
 def test_scale_features(dummy_X_train, dummy_X_test):
 
-    X_train_scaled, X_test_scaled, _ = scale_features(dummy_X_train, dummy_X_test)
+    X_train_scaled, scale = scale_features(dummy_X_train)
+    X_test_scaled = scale.transform(dummy_X_test)
     
     assert X_train_scaled.mean(axis=0) == pytest.approx(np.zeros(11), abs=1e-6)
     assert X_train_scaled.std(axis=0) == pytest.approx(np.ones(11), abs=1e-6)

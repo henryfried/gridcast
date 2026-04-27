@@ -9,11 +9,10 @@ def load_df(db_name: str, years: list[int]):
     else:
         return  pd.read_sql(f"SELECT * FROM {db_name} WHERE EXTRACT(year FROM hourly) = {years[0]}", engine)
 
-def scale_features(X_train, X_test):
+def scale_features(X_train):
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
-    return X_train_scaled, X_test_scaled, scaler
+    return X_train_scaled, scaler
 
 def scale_targets(y_train):
     scaler = StandardScaler()

@@ -28,7 +28,8 @@ def get_model(model_type: str, **kwargs):
 def train(model_type: str, db_name: str, train_years: list[int], test_years: list[int], **kwargs):
     X_train, y_train = build_features(load_df(db_name, train_years))
     X_test, y_test = build_features(load_df(db_name, test_years))
-    X_train_scaled, X_test_scaled, _ = scale_features(X_train, X_test)
+    X_train_scaled, x_scaler = scale_features(X_train)
+    X_test_scaled = x_scaler.transform(X_test)
     y_train_scaled, y_scaler  = scale_targets(y_train)
     
     model = get_model(model_type, **kwargs)
