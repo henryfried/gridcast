@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from models.features import time_mapping, build_features
+from models.features import time_mapping, build_features, build_sequences
 
 def test_time_mapping():
     time = np.array([0, 6, 12, 18, 24, 30, 36])
@@ -29,12 +29,13 @@ def dummy_df():
         'solar_generation': np.random.rand(24) * 7000,
         'wind_generation_on': np.random.rand(24) * 30000,
         'wind_generation_off': np.random.rand(24) * 8000,
+        'avg_wind_speed_10m_off': np.random.rand(24) * 20,
     })
 
 def test_build_features(dummy_df):
     X, y = build_features(dummy_df)
     
-    assert X.values.shape == (24, 11)
+    assert X.values.shape == (24, 12)
     assert y.values.shape == (24, 4)
     
     assert not X.isnull().any().any()
@@ -45,4 +46,11 @@ def test_build_features(dummy_df):
 
     assert list(y.columns) == ['solar_generation', 'wind_generation_on', 'wind_generation_off', 'renewable_total_mw']
     
-    
+def test_build_sequences(dummy_df):
+    X, y = build_features(dummy_df)
+    window_size = 4
+
+    X_seq, y_seq = build_sequences(X.values, y.values, window_size)
+    n_samples = len(X) - window_size
+    assert X_seq.shape == (n_samples, window_size, 12)
+    assert y_seq.shape == (n_samples, 4)

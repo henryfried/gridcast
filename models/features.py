@@ -10,11 +10,23 @@ def build_features(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     hour_map = time_mapping(df["hourly"].dt.hour, 24, 'hour')
     month_map = time_mapping(df["hourly"].dt.month, 12, 'months')
     day_of_year_map = time_mapping(df["hourly"].dt.day_of_year, 356, 'day_of_year')
+    
     features = pd.concat([month_map, day_of_year_map, hour_map, df["avg_shortwave_radiation"],
-                df["avg_wind_speed_10m"],df["avg_cloud_cover"], df["avg_temperature_2m"], df["avg_diffuse_radiation"]], axis=1)
+                df["avg_wind_speed_10m"], df["avg_cloud_cover"], df["avg_temperature_2m"], 
+                df["avg_diffuse_radiation"], df["avg_wind_speed_10m_off"]], axis=1)
 
     targets = pd.concat([df["solar_generation"], df["wind_generation_on"], df['wind_generation_off'],
                         (df["solar_generation"] + df["wind_generation_on"] + df['wind_generation_off']).rename("renewable_total_mw")], axis=1)
     
     return features, targets
+
+def build_sequences(X: np.ndarray, y: np.ndarray, window_size: int = 24) -> tuple[np.ndarray, np.ndarray]:
+    n_samples = len(X) - window_size
     
+    X_seq = []
+    y_seq = []
+    for n in range(n_samples):
+        X_seq.append(X[n:n+window_size])
+        y_seq.append(y[n+window_size])
+  
+    return np.array(X_seq), np.array(y_seq)
