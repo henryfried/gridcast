@@ -53,7 +53,8 @@ CREATE VIEW v_weather_generation AS
             AVG(shortwave_radiation) AS avg_shortwave_radiation,
             AVG(diffuse_radiation) AS avg_diffuse_radiation,
             AVG(wind_speed_10m) AS avg_wind_speed_10m,
-            AVG(cloud_cover) AS avg_cloud_cover
+            AVG(cloud_cover) AS avg_cloud_cover,
+            AVG(wind_speed_10m_off) AS avg_wind_speed_10m_off
         FROM meteo
         GROUP BY hourly
     )
@@ -64,6 +65,7 @@ CREATE VIEW v_weather_generation AS
         w.avg_diffuse_radiation,
         w.avg_wind_speed_10m,
         w.avg_cloud_cover,
+        w.avg_wind_speed_10m_off,
         e.solar_generation,
         e.wind_generation_off,
         e.wind_generation_on
@@ -80,6 +82,7 @@ SELECT
     g.avg_diffuse_radiation,
     g.avg_wind_speed_10m,
     g.avg_cloud_cover,
+    g.avg_wind_speed_10m_off,
     g.solar_generation,
     g.wind_generation_off,
     g.wind_generation_on,

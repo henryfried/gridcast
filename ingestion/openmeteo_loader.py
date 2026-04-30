@@ -8,7 +8,7 @@ import pandas as pd
 ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 
 # Representative locations for the DE-LU bidding zone
-LOCATIONS: dict[str, dict[str, float]] = {
+INLAND_LOCATIONS: dict[str, dict[str, float]] = {
     "berlin":     {"latitude": 52.52, "longitude": 13.40},
     "munich":     {"latitude": 48.14, "longitude": 11.58},
     "frankfurt":  {"latitude": 50.11, "longitude":  8.68},
@@ -16,15 +16,21 @@ LOCATIONS: dict[str, dict[str, float]] = {
     "cologne":    {"latitude": 50.94, "longitude":  6.96},
     "luxembourg": {"latitude": 49.61, "longitude":  6.13},
 }
+OFFSHORE_LOCATIONS: dict[str, dict[str, float]] = {
+    "north_sea": {"latitude": 54.0, "longitude":  8.0},
+}
 
 # Default hourly variables — chosen for net load and solar generation modelling
-VARIABLES: list[str] = [
+INLAND_VARIABLES: list[str] = [
     "temperature_2m",
     "shortwave_radiation",
     "direct_radiation",
     "diffuse_radiation",
     "wind_speed_10m",
     "cloud_cover",
+]
+OFFSHORE_VARIABLES: list[str] = [
+    "wind_speed_10m",
 ]
 
 
@@ -43,14 +49,14 @@ def _fetch_location(
         "start_date": start_date,
         "end_date": end_date,
         "hourly": ",".join(variables),
-        "timezone": "Europe/Berlin",
+        "timezone": "UTC",
     }
     response = requests.get(ARCHIVE_URL, params=params, timeout=30)
     response.raise_for_status()
 
     hourly = response.json()["hourly"]
     df = pd.DataFrame(hourly)
-    df["time"] = pd.to_datetime(df["time"]).dt.tz_localize("Europe/Berlin").dt.tz_convert("UTC")
+    df["time"] = pd.to_datetime(df["time"]).dt.tz_localize("UTC")
     df.rename(columns={"time": "time_stamp"}, inplace=True)
     df.insert(0, "loc", name)
     return df
@@ -59,8 +65,6 @@ def _fetch_location(
 def load_weather(
     start_date: str,
     end_date: str,
-    locations: dict[str, dict[str, float]] | None = None,
-    variables: list[str] | None = None,
 ) -> pd.DataFrame:
     """
     Load historical hourly weather data for DE-LU representative locations.
@@ -72,11 +76,6 @@ def load_weather(
         the fetch to a single year or a specific range.
     end_date : str
         ISO date string, e.g. "2022-12-31".
-    locations : dict, optional
-        Mapping of {name: {"latitude": float, "longitude": float}}.
-        Defaults to the six DE-LU representative cities in LOCATIONS.
-    variables : list[str], optional
-        Open-Meteo hourly variable names. Defaults to VARIABLES.
 
     Returns
     -------
@@ -95,22 +94,32 @@ def load_weather(
     # Custom locations
     df = load_weather("2023-01-01", "2023-12-31", locations={"berlin": {"latitude": 52.52, "longitude": 13.40}})
     """
-    if locations is None:
-        locations = LOCATIONS
-    if variables is None:
-        variables = VARIABLES
-
+    
     frames: list[pd.DataFrame] = []
-    for name, coords in locations.items():
+    for name, coords in INLAND_LOCATIONS.items():
         df = _fetch_location(
             name=name,
             latitude=coords["latitude"],
             longitude=coords["longitude"],
             start_date=start_date,
             end_date=end_date,
-            variables=variables,
+            variables=INLAND_VARIABLES,
         )
+
         frames.append(df)
+        
+    for name, coords in OFFSHORE_LOCATIONS.items():
+        df = _fetch_location(
+            name=name,
+            latitude=coords["latitude"],
+            longitude=coords["longitude"],
+            start_date=start_date,
+            end_date=end_date,
+            variables=OFFSHORE_VARIABLES,
+        )
+        df = df.rename(columns={"wind_speed_10m": "wind_speed_10m_off"})
+        frames.append(df)   
+
 
     return pd.concat(frames, ignore_index=True)
 # if __name__ == "__main__":
