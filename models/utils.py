@@ -42,11 +42,12 @@ def prepare_data(db_name: str, train_years: list[int], valid_years: list[int], t
     X_test_scaled = x_scaler.transform(X_test)
     y_train_scaled, y_scaler  = scale_targets(y_train)
     y_valid_scaled = y_scaler.transform(y_valid)
-
+    test_timestamps = test_df["hourly"].values[seq_len:]
+    
     if seq_len == 0:
         train_loader = batch(X_train_scaled, y_train_scaled, batch_size)
         valid_loader = batch(X_valid_scaled, y_valid_scaled, batch_size)
-        return train_loader, valid_loader, X_test_scaled, y_test, y_scaler
+        return train_loader, valid_loader, X_test_scaled, y_test, y_scaler, test_timestamps
     
     else:
         X_train_seq, Y_train_seq = build_sequences(X_train_scaled, y_train_scaled, seq_len)
@@ -55,4 +56,4 @@ def prepare_data(db_name: str, train_years: list[int], valid_years: list[int], t
         
         train_loader = batch(X_train_seq, Y_train_seq, batch_size)
         valid_loader = batch(X_valid_seq, Y_valid_seq, batch_size)
-        return train_loader, valid_loader, X_test_seq, y_test_seq, y_scaler
+        return train_loader, valid_loader, X_test_seq, y_test_seq, y_scaler, test_timestamps

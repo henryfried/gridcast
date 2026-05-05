@@ -28,10 +28,10 @@ def train_neural(db_name: str, train_years: list[int], valid_years: list[int], t
     lr = kwargs.get('lr', 1e-3)
     patience = kwargs.get('patience', 10)
     dropout_rate = kwargs.get('dropout_rate', 0.2)
-
+    min_delta = kwargs.get('min_delta', 1e-4)
     
     
-    train_loader, valid_loader, X_test_scaled, y_test, y_scaler  = prepare_data(db_name, train_years, valid_years, test_years, batch_size, seq_len=0)
+    train_loader, valid_loader, X_test_scaled, y_test, y_scaler, test_timestamps  = prepare_data(db_name, train_years, valid_years, test_years, batch_size, seq_len=0)
     
     
     
@@ -76,7 +76,7 @@ def train_neural(db_name: str, train_years: list[int], valid_years: list[int], t
         train_loss.append((epoch_train_loss / train_batch).detach().item())
         valid_loss.append((epoch_valid_loss / valid_batch).detach().item())
         
-        if valid_loss[-1] < best_val_loss:
+        if valid_loss[-1] < best_val_loss - min_delta:
             best_val_loss = valid_loss[-1]
             patience_counter = 0
             best_weights = model.state_dict().copy()
@@ -93,4 +93,4 @@ def train_neural(db_name: str, train_years: list[int], valid_years: list[int], t
     predictions = model(torch.tensor(X_test_scaled, dtype=torch.float32)).detach().numpy()
     pred_scaled = y_scaler.inverse_transform(predictions)
 
-    return model, pred_scaled, y_test, train_loss, valid_loss
+    return model, pred_scaled, y_test, train_loss, valid_loss, test_timestamps

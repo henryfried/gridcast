@@ -57,12 +57,12 @@ def train_transformer(db_name: str, train_years: list[int], valid_years: list[in
     seq_len = kwargs.get('seq_len', 24)
     n_head = kwargs.get('n_head', 1 )
     d_model = kwargs.get('d_model', 64)
-
+    min_delta = kwargs.get('min_delta', 1e-4)
     
     
 
     
-    train_loader, valid_loader, X_test_scaled, y_test, y_scaler  = prepare_data(db_name, train_years, valid_years, test_years, batch_size, seq_len)
+    train_loader, valid_loader, X_test_scaled, y_test, y_scaler, test_timestamps  = prepare_data(db_name, train_years, valid_years, test_years, batch_size, seq_len)
 
     
     
@@ -111,7 +111,7 @@ def train_transformer(db_name: str, train_years: list[int], valid_years: list[in
         train_loss.append((epoch_train_loss / train_batch).detach().item())
         valid_loss.append((epoch_valid_loss / valid_batch).detach().item())
         
-        if valid_loss[-1] < best_val_loss:
+        if valid_loss[-1] < best_val_loss - min_delta:
             best_val_loss = valid_loss[-1]
             patience_counter = 0
             best_weights = model.state_dict().copy()
@@ -128,4 +128,4 @@ def train_transformer(db_name: str, train_years: list[int], valid_years: list[in
     predictions = model(torch.tensor(X_test_scaled, dtype=torch.float32)).detach().numpy()
     pred_scaled = y_scaler.inverse_transform(predictions)
 
-    return model, pred_scaled, y_test, train_loss, valid_loss
+    return model, pred_scaled, y_test, train_loss, valid_loss, test_timestamps
