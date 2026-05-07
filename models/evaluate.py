@@ -8,4 +8,3 @@ def evaluate(prediction, y_test) -> dict:
 
 def residual(prediction, y_test) -> np.array:
     return y_test.values - prediction
-
