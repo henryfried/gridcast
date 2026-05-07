@@ -44,13 +44,13 @@ Requires Docker to be running. On macOS with Colima:
 
 ```bash
 colima start
-docker compose up -d
+docker-compose up -d
 ```
 
 On other systems, start Docker Desktop and then:
 
 ```bash
-docker compose up -d
+docker-compose up -d
 ```
 
 ### Initialize schema and views
@@ -102,6 +102,17 @@ gridcast/
 ├── tests/               # pytest test suite
 └── dashboard/           # Streamlit dashboard (in progress)
 ```
+
+## Dashboard
+
+Install the dashboard dependencies and run:
+
+```bash
+pip install -e ".[dashboard]"
+streamlit run dashboard/app.py
+```
+
+Select models and a date range in the sidebar to compare predictions against actuals and across models.
 
 ## Tests
 

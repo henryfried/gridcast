@@ -23,7 +23,7 @@ pip-delete-this-directory.txt
 htmlcov/
 *.ipynb_checkpoints/
 .ipynb_checkpoints
-
+artifacts
 # Environment
 .env
 *.env

@@ -24,6 +24,8 @@ dev = [
     "ipykernel>=6.0",
 ]
 
+dashboard = ["streamlit>=1.30"]
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["ingestion*", "features*", "models*"]
