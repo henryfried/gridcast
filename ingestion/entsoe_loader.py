@@ -68,6 +68,27 @@ def _fetch_generation(
 
     return df_renewable
 
+def _fetch_capacities(
+    country_code: str,
+    start_date: str,
+    end_date: str,
+    time_zone: str = 'CET',
+):
+    df = client.query_installed_generation_capacity(country_code, start=pd.Timestamp(start_date, tz=time_zone), end=pd.Timestamp(end_date, tz=time_zone))
+    df = df.reset_index()
+    timestamps = df['index']
+
+    df_renewable_capacities = df[['Solar', 'Wind Offshore', 'Wind Onshore']].copy()
+    df_renewable_capacities = df_renewable_capacities.rename(columns={
+        'Solar': 'solar_generation_capacity',
+        'Wind Offshore': 'wind_generation_off_capacity',
+        'Wind Onshore': 'wind_generation_on_capacity',
+    })
+    df_renewable_capacities.insert(0, "time_stamp", timestamps)
+    df_renewable_capacities.insert(0, "country_code", country_code)
+
+    return df_renewable_capacities
+    
 def _fetch_flows(
   country_code: str,
   start_date: str,
@@ -132,6 +153,10 @@ def load_entso_e(
     df_generation = _fetch_generation(country_code,
                             start_date,
                             end_date)
+    
+    df_capacities = _fetch_capacities(country_code,
+                            start_date,
+                            end_date)
 
     df_flows = _fetch_flows(country_code,
                             start_date,
@@ -140,8 +165,8 @@ def load_entso_e(
     frames = {
             "entso_e_load": df_load,
             "entso_e_generation": df_generation,
+            "entso_e_capacity": df_capacities,
             "entso_e_flows": df_flows
             }
            
-    
     return frames

@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore")
 
 from ingestion.utils import engine
 from models.persistence import load_model, load_predictions
-from models.utils import load_df
+from models.utils import load_df, load_capacity
 from models.features import build_features
 from models.plot import plot_net_load, plot_comparison, plot_model_eval
 from models.evaluate import evaluate
@@ -41,7 +41,8 @@ def load_test():
         test_timestamps: numpy array of datetime64 timestamps.
     """
     test_df = load_df('v_forecast_features', [2024])
-    _, y_test = build_features(test_df)
+    test_capacity = load_capacity([2024])
+    _, y_test = build_features(test_df, test_capacity)
     test_timestamps = pd.to_datetime(test_df["hourly"].values).values
     return y_test, test_timestamps
     

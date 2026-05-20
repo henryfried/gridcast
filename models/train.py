@@ -3,7 +3,7 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.multioutput import MultiOutputRegressor
 
 from models.features import build_features
-from models.utils import load_df, scale_features, scale_targets
+from models.utils import load_df, load_capacity, scale_features, scale_targets
 
 def get_model(model_type: str, **kwargs):
     if model_type == 'linear':
@@ -28,8 +28,13 @@ def get_model(model_type: str, **kwargs):
 def train(model_type: str, db_name: str, train_years: list[int], test_years: list[int], **kwargs):
     train_df = load_df(db_name, train_years)
     test_df = load_df(db_name, test_years)
-    X_train, y_train = build_features(train_df)
-    X_test, y_test = build_features(test_df)
+    
+    train_capacity = load_capacity(train_years)
+    test_capacity = load_capacity(test_years)
+    
+    X_train, y_train = build_features(train_df, train_capacity)
+    X_test, y_test = build_features(test_df, test_capacity)
+    
     test_timestamps = test_df["hourly"].values
     
     X_train_scaled, x_scaler = scale_features(X_train)

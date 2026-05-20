@@ -31,9 +31,17 @@ def dummy_df():
         'wind_generation_off': np.random.rand(24) * 8000,
         'avg_wind_speed_10m_off': np.random.rand(24) * 20,
     })
+@pytest.fixture
+def dummy_capacity():
+    return pd.DataFrame({
+        'time_stamp': pd.to_datetime(['2023-01-01']),
+        'solar_generation_capacity': [63000.0],
+        'wind_generation_on_capacity': [58000.0],
+        'wind_generation_off_capacity': [8000.0],
+    })
 
-def test_build_features(dummy_df):
-    X, y = build_features(dummy_df)
+def test_build_features(dummy_df,dummy_capacity):
+    X, y = build_features(dummy_df, dummy_capacity)
     
     assert X.values.shape == (24, 12)
     assert y.values.shape == (24, 4)
@@ -46,8 +54,8 @@ def test_build_features(dummy_df):
 
     assert list(y.columns) == ['solar_generation', 'wind_generation_on', 'wind_generation_off', 'renewable_total_mw']
     
-def test_build_sequences(dummy_df):
-    X, y = build_features(dummy_df)
+def test_build_sequences(dummy_df, dummy_capacity):
+    X, y = build_features(dummy_df, dummy_capacity)
     window_size = 4
 
     X_seq, y_seq = build_sequences(X.values, y.values, window_size)

@@ -12,6 +12,12 @@ def load_df(db_name: str, years: list[int]):
     else:
         return  pd.read_sql(f"SELECT * FROM {db_name} WHERE EXTRACT(year FROM hourly) = {years[0]}", engine)
 
+def load_capacity(years: list[int]):
+    if len(years) > 1: 
+        return  pd.read_sql(f"SELECT * FROM entso_e_capacity WHERE EXTRACT(year FROM time_stamp) BETWEEN {years[0]} AND {years[1]}", engine, parse_dates=['time_stamp'])
+    else:
+        return  pd.read_sql(f"SELECT * FROM entso_e_capacity WHERE EXTRACT(year FROM time_stamp) = {years[0]}", engine, parse_dates=['time_stamp'])
+    
 def scale_features(X_train):
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
@@ -33,9 +39,13 @@ def prepare_data(db_name: str, train_years: list[int], valid_years: list[int], t
     valid_df = load_df(db_name, valid_years)
     test_df = load_df(db_name, test_years)
     
-    X_train, y_train = build_features(train_df)
-    X_valid, y_valid = build_features(valid_df)
-    X_test, y_test = build_features(test_df)
+    train_capacity = load_capacity(train_years)
+    valid_capacity = load_capacity(valid_years)
+    test_capacity = load_capacity(test_years)
+    
+    X_train, y_train = build_features(train_df, train_capacity)
+    X_valid, y_valid = build_features(valid_df, valid_capacity)
+    X_test, y_test = build_features(test_df, test_capacity)
     
     X_train_scaled, x_scaler = scale_features(X_train)
     X_valid_scaled = x_scaler.transform(X_valid)

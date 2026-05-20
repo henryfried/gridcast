@@ -32,6 +32,17 @@ CREATE TABLE entso_e_generation (
     --coal_generation DOUBLE PRECISION, might be added to distinguish between different CO2 emissions
 );
 
+DROP TABLE IF EXISTS entso_e_capacity;
+CREATE TABLE entso_e_capacity (
+    data_id SERIAL PRIMARY KEY,
+    time_stamp TIMESTAMPTZ NOT NULL,
+    country_code TEXT NOT NULL,
+    solar_generation_capacity DOUBLE PRECISION,
+    wind_generation_off_capacity DOUBLE PRECISION,
+    wind_generation_on_capacity DOUBLE PRECISION
+);
+
+
 DROP TABLE IF EXISTS entso_e_flows;
 CREATE TABLE entso_e_flows (
     data_id SERIAL PRIMARY KEY,
