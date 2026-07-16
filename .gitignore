@@ -45,6 +45,9 @@ data/
 # Use: jupyter nbconvert --clear-output --inplace notebooks/*.ipynb
 *.ipynb
 
-.claude/
+.claude/settings.local.json
+.claude/agent-memory/
+.claude/agents/project-tutor.md
+/ROADMAP.md
 .sqlfluff
 
