@@ -1,14 +1,18 @@
 ---
 description: Function-level rubric review in isolation (ROADMAP 0.2b) — extracts one function plus a one-line stated purpose and reviews it via review-agent, with no surrounding file context. Fast feedback while writing; never a substitute for /review.
-argument-hint: <file-path> <function-name>
+argument-hint: <file-path> <function-name> [purpose...]
 allowed-tools: Read, Bash, Agent
 ---
 
 Run a function-level review per ROADMAP.md task 0.2b.
 
-Arguments: `$ARGUMENTS` — two whitespace-separated tokens, a file path and a
-function name (e.g. `models/features.py build_features`). Parse them; if
-either is missing, stop and ask the user for both rather than guessing.
+Arguments: `$ARGUMENTS` — the first two whitespace-separated tokens are the
+file path and function name (e.g. `models/features.py build_features`);
+everything after that, if anything, is an optional one-line purpose
+(e.g. `models/features.py build_features prepare data for training by
+splitting it into targets and features`). If the path or function name is
+missing, stop and ask the user for both rather than guessing. The purpose
+is optional here — see step 2 for how it's resolved when omitted.
 
 ## 1. Extract the function in isolation
 
@@ -46,12 +50,23 @@ similarly-named function or the whole file.
 
 ## 2. Determine the one-line stated purpose
 
-- If the function has a docstring, its first line (from `<<<PURPOSE>>>`
-  above) is the stated purpose.
-- If it has none, say so plainly and write a one-line purpose from the
-  function's name and signature alone. Do not open the rest of the file
-  or any caller to infer intent — that would defeat the isolation this
-  mode exists for (ROADMAP 0.2b).
+Resolve in this order:
+
+1. **Explicit argument.** If the user supplied a purpose as part of
+   `$ARGUMENTS` (everything after the file path and function name), use
+   that verbatim — it's the freshest, most deliberate statement of intent
+   available, so it wins even if the function also has a docstring.
+2. **Docstring.** Otherwise, if the function has a docstring, its first
+   line (from `<<<PURPOSE>>>` above) is the stated purpose.
+3. **Ask.** Otherwise (no argument given, no docstring), **stop and ask
+   the user** for a one-line purpose before continuing — do not invent
+   one from the function's name or signature. `intent.md`'s checks only
+   mean something against a purpose stated independently of the code; a
+   purpose derived from the code itself is circular and would make every
+   function trivially "pass" intent, which is worse than not checking it
+   at all. Do not open the rest of the file or any caller to infer intent
+   either, for the same reason plus the isolation this mode exists for
+   (ROADMAP 0.2b) — get the purpose from the user, not from more code.
 
 ## 3. Invoke review-agent in function mode
 
