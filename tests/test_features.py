@@ -52,7 +52,7 @@ def test_build_features(dummy_df,dummy_capacity):
     sin_cos_cols = [c for c in X.columns if 'sin' in c or 'cos' in c]
     assert X[sin_cos_cols].apply(lambda col: col.between(-1, 1)).all().all()
 
-    assert list(y.columns) == ['solar_generation', 'wind_generation_on', 'wind_generation_off', 'renewable_total_mw']
+    assert list(y.columns) == ['solar_generation', 'wind_generation_on', 'wind_generation_off', 'renewable_total_capacity_factor']
     
 def test_build_sequences(dummy_df, dummy_capacity):
     X, y = build_features(dummy_df, dummy_capacity)
