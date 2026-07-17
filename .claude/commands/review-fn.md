@@ -1,18 +1,22 @@
 ---
-description: Function-level rubric review in isolation (ROADMAP 0.2b) — extracts one function plus a one-line stated purpose and reviews it via review-agent, with no surrounding file context. Fast feedback while writing; never a substitute for /review.
-argument-hint: <file-path> <function-name> [purpose...]
+description: Function-level rubric review in isolation — extracts one function plus a one-line stated purpose and reviews it via review-agent, with no surrounding file context. Fast feedback while writing; never a substitute for /review.
+argument-hint: <file-path> <function-name> [--origin=human|ai] [purpose...]
 allowed-tools: Read, Bash, Agent
 ---
 
-Run a function-level review per ROADMAP.md task 0.2b.
+Run a function-level review of one function, in isolation, against its stated purpose.
 
 Arguments: `$ARGUMENTS` — the first two whitespace-separated tokens are the
-file path and function name (e.g. `models/features.py build_features`);
-everything after that, if anything, is an optional one-line purpose
-(e.g. `models/features.py build_features prepare data for training by
-splitting it into targets and features`). If the path or function name is
-missing, stop and ask the user for both rather than guessing. The purpose
-is optional here — see step 2 for how it's resolved when omitted.
+file path and function name (e.g. `models/features.py build_features`).
+Everything after that is optional. If one of the remaining tokens is
+`--origin=human` or `--origin=ai` (case-insensitive, can appear
+anywhere after the first two tokens), pull it out — that's the origin (see
+step 3). Whatever's left after removing that token, if anything, is the
+one-line purpose (e.g. `models/features.py build_features --origin=human
+prepare data for training by splitting it into targets and features`). If
+the path or function name is missing, stop and ask the user for both
+rather than guessing. The purpose is optional — see step 2 for how it's
+resolved when omitted.
 
 ## 1. Extract the function in isolation
 
@@ -65,36 +69,40 @@ Resolve in this order:
    purpose derived from the code itself is circular and would make every
    function trivially "pass" intent, which is worse than not checking it
    at all. Do not open the rest of the file or any caller to infer intent
-   either, for the same reason plus the isolation this mode exists for
-   (ROADMAP 0.2b) — get the purpose from the user, not from more code.
+   either, for the same reason plus the isolation this mode exists for —
+   get the purpose from the user, not from more code.
 
 ## 3. Invoke review-agent in function mode
 
 Call the Agent tool with `subagent_type: review-agent`. The prompt you give
 it must contain **only**:
 
-- An explicit statement that this is function mode (ROADMAP 0.2b /
-  `/review-fn`), to be reviewed in isolation.
+- An explicit statement that this is function mode (`/review-fn`), to be
+  reviewed in isolation.
 - The extracted function source from step 1, verbatim, in a code fence,
   labeled with the function name (and file path for reference only — not
   as an invitation to open it).
 - The one-line stated purpose from step 2.
+- Origin, stated plainly: if `--origin=human` or `--origin=ai` was
+  given, say "Origin: HUMAN" or "Origin: AI"; otherwise say "Origin:
+  not stated." Never guess or infer this from the function's style, the
+  file path, or anything else — only pass along what the flag explicitly
+  said, so review-agent can apply (or skip) its trust-asymmetry weighting
+  on real information instead of a guess.
 - This explicit instruction, verbatim: "Do not Read `<file-path>` or any
   project file other than `review/domain.md`, `review/leakage.md`,
-  `review/intent.md`, `review/quality.md`, and ROADMAP.md. Review only the
-  snippet above, in isolation — if you find yourself wanting more
-  surrounding context to judge this function, that's a signal to say so
-  in your findings, not a reason to go read the file."
+  `review/intent.md`, `review/quality.md`. Review only the snippet above,
+  in isolation — if you find yourself wanting more surrounding context to
+  judge this function, that's a signal to say so in your findings, not a
+  reason to go read the file."
 
-Do not paste any other code from the file, do not summarize or paraphrase
-the function, and do not tell the reviewer which task (e.g. "0.3", LEARN
-vs DELEGATE) this came from unless the user told you — inferring that
-from the file would mean looking beyond the function.
+Do not paste any other code from the file, and do not summarize or
+paraphrase the function.
 
 ## 4. Relay the result
 
 Print review-agent's full output back to the user verbatim, including its
 `REVIEW SUMMARY` block. Add a one-line reminder that a clean result here
 is a head start, not a sign-off — the full diff-level `/review` is still
-required before merge (ROADMAP 0.2b). Don't add your own commentary on
-the findings themselves.
+required before merge. Don't add your own commentary on the findings
+themselves.
