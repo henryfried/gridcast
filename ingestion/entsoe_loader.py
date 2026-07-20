@@ -93,7 +93,7 @@ def _fetch_flows(
   country_code: str,
   start_date: str,
   end_date: str,
-  neighbors: str,
+  neighbors: list[str],
   time_zone: str = 'CET',
 ):
     """Fetch cross-border physical flows from a country zone to each of its neighbors.
