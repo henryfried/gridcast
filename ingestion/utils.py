@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env.postgres"))
 url = os.environ.get("DATABASE_URL")
-engine = create_engine(url)
+engine = create_engine(url, pool_pre_ping=True)
 
 
 def write_to_db(df, table_name):
