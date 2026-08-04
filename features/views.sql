@@ -2,7 +2,8 @@ DROP VIEW IF EXISTS net_load CASCADE;
 DROP VIEW IF EXISTS v_weather_generation;
 DROP VIEW IF EXISTS v_grid_balance;
 DROP VIEW IF EXISTS v_renewable_share;
-
+DROP VIEW IF EXISTS v_forecast_features;
+DROP VIEW IF EXISTS v_ledger_with_actuals;
 
 CREATE VIEW net_load AS
     WITH hourly_load AS (
@@ -89,3 +90,27 @@ SELECT
     (g.solar_generation + g.wind_generation_off + g.wind_generation_on) / b.avg_load_mw AS renewable_share_percent
 FROM v_weather_generation g
 JOIN v_grid_balance b ON g.hourly = b.hourly;
+
+-- Assumes ledger.*_pred columns are already MW-scaled at insert time
+-- (not the raw capacity-factor model output) — the ledger population
+-- script is responsible for that conversion before writing.
+CREATE VIEW v_ledger_with_actuals AS
+SELECT
+    v.hourly,
+    l.model,
+    v.country_code,
+    v.net_balance,
+    v.solar_generation AS solar_generation_actual,
+    v.wind_generation_off AS wind_generation_off_actual,
+    v.wind_generation_on AS wind_generation_on_actual,
+    l.solar_generation_pred,
+    l.wind_generation_off_pred,
+    l.wind_generation_on_pred,
+    v.solar_generation - l.solar_generation_pred AS solar_generation_error,
+    v.wind_generation_off - l.wind_generation_off_pred AS wind_generation_off_error,
+    v.wind_generation_on - l.wind_generation_on_pred AS wind_generation_on_error,
+    l.quantile_10,
+    l.quantile_50,
+    l.quantile_90
+FROM ledger l
+JOIN v_forecast_features v ON l.time_stamp = v.hourly;
