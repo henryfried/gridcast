@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from models.features import time_mapping, build_features, build_sequences
+from models.features import build_features, build_sequences, time_mapping
+
 
 def test_time_mapping():
     time = np.array([0, 6, 12, 18, 24, 30, 36])

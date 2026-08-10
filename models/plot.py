@@ -1,8 +1,8 @@
+import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
-import matplotlib.pyplot as plt 
 from models.evaluate import evaluate
+
 
 def plot_net_load(prediction, y_test, pred_timestamps, test_timestamps, time_window):
     """Plot predicted vs actual renewable generation for a single model over a time window.

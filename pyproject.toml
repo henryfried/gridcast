@@ -16,12 +16,14 @@ dependencies = [
     "numpy>=1.26",
     "scikit-learn>=1.4",
     "torch>=2.0",
+    "entsoe-py>=0.8.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
     "ipykernel>=6.0",
+    "ruff>=0.16.2",
 ]
 
 dashboard = ["streamlit>=1.30"]
@@ -29,3 +31,13 @@ dashboard = ["streamlit>=1.30"]
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["ingestion*", "features*", "models*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+# dashboard/test_app.py relies on Streamlit's "magic" display (bare
+# expressions auto-render to the UI) - not the dead code ruff thinks it is.
+extend-exclude = ["dashboard/test_app.py"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

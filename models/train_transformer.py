@@ -1,7 +1,6 @@
+import numpy as np
 import torch
 from torch import nn, optim
-
-import numpy as np
 
 from models.utils import prepare_data
 
@@ -17,12 +16,13 @@ def getPositionEncoding(seq_len, d, n=10000):
 
 
 class Transformer(nn.Module):
-    def __init__(self, 
+    def __init__(self,
         n_head: int,
         d_model: int,
         seq_len: int,
-        dropout_rate: float) -> None:
-        
+        dropout_rate: float,
+        out_dim: int = 4) -> None:
+
         super().__init__()
         self.input_proj = nn.Linear(12, d_model)
         self.register_buffer('positional_encoding', getPositionEncoding(seq_len, d_model))
@@ -33,7 +33,7 @@ class Transformer(nn.Module):
             batch_first=True ,     # input shape: (batch, seq, features)
             dropout=dropout_rate
         )
-        self.output_proj = nn.Linear(d_model, 4)
+        self.output_proj = nn.Linear(d_model, out_dim)
 
         
     def forward(self, x):
@@ -70,7 +70,8 @@ def train_transformer(db_name: str, train_years: list[int], valid_years: list[in
     model = Transformer(n_head,
             d_model,
             seq_len,
-            dropout_rate)
+            dropout_rate,
+            out_dim)
     loss_fn = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
     train_loss = []

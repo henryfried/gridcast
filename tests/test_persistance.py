@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
-from models.persistence import save_model, save_sklearn, save_predictions, load_model, load_sklearn, load_predictions
+from models.persistence import load_predictions, load_sklearn, save_predictions, save_sklearn
 
 # TODO: add test for save_model/load_model once MLP fixture is available
 

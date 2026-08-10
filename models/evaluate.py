@@ -1,5 +1,6 @@
 import numpy as np
-from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score
+from sklearn.metrics import mean_absolute_error, r2_score, root_mean_squared_error
+
 
 def evaluate(prediction, y_test) -> dict:
     return {'RMSE': root_mean_squared_error(y_test, prediction, multioutput='raw_values'),

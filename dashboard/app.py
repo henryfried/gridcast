@@ -1,18 +1,16 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
 import datetime
 import os
 import warnings
+
+import pandas as pd
+import streamlit as st
+
 warnings.filterwarnings("ignore")
 
-from ingestion.utils import engine
-from models.persistence import load_model, load_predictions
-from models.utils import load_df, load_capacity
 from models.features import build_features
-from models.plot import plot_net_load, plot_comparison, plot_model_eval
-from models.evaluate import evaluate
-
+from models.persistence import load_predictions
+from models.plot import plot_comparison, plot_model_eval, plot_net_load
+from models.utils import load_capacity, load_df
 
 
 @st.cache_data
