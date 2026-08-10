@@ -3,21 +3,21 @@ import torch
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import DataLoader, TensorDataset
 
-from ingestion.utils import engine
+from ingestion.utils import get_engine
 from models.features import build_features, build_sequences
 
 
 def load_df(db_name: str, years: list[int]):
-    if len(years) > 1: 
-        return  pd.read_sql(f"SELECT * FROM {db_name} WHERE EXTRACT(year FROM hourly) BETWEEN {years[0]} AND {years[1]}", engine)
+    if len(years) > 1:
+        return  pd.read_sql(f"SELECT * FROM {db_name} WHERE EXTRACT(year FROM hourly) BETWEEN {years[0]} AND {years[1]}", get_engine())
     else:
-        return  pd.read_sql(f"SELECT * FROM {db_name} WHERE EXTRACT(year FROM hourly) = {years[0]}", engine)
+        return  pd.read_sql(f"SELECT * FROM {db_name} WHERE EXTRACT(year FROM hourly) = {years[0]}", get_engine())
 
 def load_capacity(years: list[int]):
-    if len(years) > 1: 
-        return  pd.read_sql(f"SELECT * FROM entso_e_capacity WHERE EXTRACT(year FROM time_stamp) BETWEEN {years[0]} AND {years[1]}", engine, parse_dates=['time_stamp'])
+    if len(years) > 1:
+        return  pd.read_sql(f"SELECT * FROM entso_e_capacity WHERE EXTRACT(year FROM time_stamp) BETWEEN {years[0]} AND {years[1]}", get_engine(), parse_dates=['time_stamp'])
     else:
-        return  pd.read_sql(f"SELECT * FROM entso_e_capacity WHERE EXTRACT(year FROM time_stamp) = {years[0]}", engine, parse_dates=['time_stamp'])
+        return  pd.read_sql(f"SELECT * FROM entso_e_capacity WHERE EXTRACT(year FROM time_stamp) = {years[0]}", get_engine(), parse_dates=['time_stamp'])
     
 def scale_features(X_train):
     scaler = StandardScaler()
