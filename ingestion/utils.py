@@ -1,5 +1,6 @@
 """Shared utilities for data ingestion: DB connections, retries, and data validation helpers."""
 import os
+
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 

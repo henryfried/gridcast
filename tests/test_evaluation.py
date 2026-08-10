@@ -1,8 +1,9 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
 
 from models.evaluate import evaluate, residual
+
 
 @pytest.fixture
 def dummy_y_test():

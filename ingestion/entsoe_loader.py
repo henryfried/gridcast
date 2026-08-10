@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-import pandas as pd
-from entsoe import EntsoePandasClient
-from dotenv import load_dotenv
 import os
+
+import pandas as pd
+from dotenv import load_dotenv
+from entsoe import EntsoePandasClient
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env.postgres"))
 api_key = os.environ.get("ENTSOE_API_KEY")

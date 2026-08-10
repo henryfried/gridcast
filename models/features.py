@@ -1,5 +1,6 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 
 def time_mapping( time: int, period: int,name: str,):
     time_sin = np.sin(2*np.pi * time / period)

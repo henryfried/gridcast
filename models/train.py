@@ -1,9 +1,10 @@
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.multioutput import MultiOutputRegressor
 
 from models.features import build_features
-from models.utils import load_df, load_capacity, scale_features, scale_targets
+from models.utils import load_capacity, load_df, scale_features, scale_targets
+
 
 def get_model(model_type: str, **kwargs):
     if model_type == 'linear':

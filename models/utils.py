@@ -1,10 +1,11 @@
-from sklearn.preprocessing import StandardScaler
 import pandas as pd
-from ingestion.utils import engine
 import torch
+from sklearn.preprocessing import StandardScaler
 from torch.utils.data import DataLoader, TensorDataset
 
+from ingestion.utils import engine
 from models.features import build_features, build_sequences
+
 
 def load_df(db_name: str, years: list[int]):
     if len(years) > 1: 

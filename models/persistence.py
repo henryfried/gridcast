@@ -1,6 +1,7 @@
 import joblib
-import torch
 import numpy as np
+import torch
+
 
 def save_sklearn(model, path: str):
     joblib.dump(model, path)

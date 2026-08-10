@@ -1,8 +1,8 @@
 import torch
 from torch import nn, optim
-from torch.utils.data import DataLoader, TensorDataset
 
 from models.utils import prepare_data
+
 
 class MLP(nn.Module):
     def __init__(self, layer_dims: list, out_dim: int, dropout_rate: float) -> None:
