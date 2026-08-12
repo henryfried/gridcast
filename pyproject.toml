@@ -17,6 +17,7 @@ dependencies = [
     "scikit-learn>=1.4",
     "torch>=2.0",
     "entsoe-py>=0.8.0",
+    "matplotlib>=3.10.9",
 ]
 
 [project.optional-dependencies]
