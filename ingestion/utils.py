@@ -10,7 +10,7 @@ _engine = None
 
 
 def get_engine():
-    """Create (once) and cache the SQLAlchemy engine, lazily - so importing
+    """Create (once) and cache the SQLAlchemy engine, lazily: so importing
     this module never requires DATABASE_URL to be set."""
     global _engine
     if _engine is None:
