@@ -3,7 +3,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.multioutput import MultiOutputRegressor
 
 from models.features import build_features
-from models.utils import load_capacity, load_df, scale_features, scale_targets
+from models.utils import load_capacity, load_df, scale_features, scale_targets, check_quantile_crossing
 
 import numpy as np
 
@@ -26,6 +26,9 @@ def get_model(model_type: str, quantile_alpha: float | None = None, **kwargs):
         An untrained sklearn estimator (LinearRegression, RandomForestRegressor,
         or a MultiOutputRegressor wrapping GradientBoostingRegressor).
     """
+    if quantile_alpha is not None and model_type != 'gradient_boosting':
+        raise ValueError(f"quantile_alpha is only supported for gradient_boosting, got model_type={model_type!r}")
+    
     if model_type == 'linear':
         return LinearRegression()
     elif model_type == 'random_forest':
@@ -38,7 +41,7 @@ def get_model(model_type: str, quantile_alpha: float | None = None, **kwargs):
         )
     elif model_type == 'gradient_boosting':
         quantile_kwargs = {}
-        if quantile_alpha:
+        if quantile_alpha is not None:
             quantile_kwargs= {
             "loss": 'quantile',
             "alpha": quantile_alpha
@@ -122,49 +125,7 @@ def train(model_type: str, db_name: str, train_years: list[int], test_years: lis
 
     return model, pred_scaled, y_test.values, test_timestamps
 
-def check_quantile_crossing(preds_raw_scaled, quantile_alphas):
-    """
-    Detect quantile crossing and fix it via post-hoc monotone rearrangement.
 
-    Each alpha in train_quantile_gbm is fit as an independent model, so
-    nothing structurally guarantees e.g. P10 <= P50 <= P90 per row: this
-    sorts the predicted quantiles back into order after the fact (safe even
-    when nothing crossed, since sorting already-sorted values is a no-op).
-    Rearrangement is a known, valid technique, not a hack (Chernozhukov,
-    Fernandez-Val & Galichon, 2010).
-
-    Parameters
-    ----------
-    preds_raw_scaled : dict[str, np.ndarray]
-        {f"quantile_{alpha}": predictions}, each array shape (n_samples, n_targets).
-    quantile_alphas : list[float]
-        Must already be sorted ascending: crossing is checked pairwise in
-        that order, and the same order is used to stack/unstack below.
-
-    Returns
-    -------
-    dict[str, np.ndarray]
-        Same shape/keys as preds_raw_scaled, values sorted along the
-        quantile axis per (sample, target).
-    """
-    preds_sorted = {}
-    # purely diagnostic: the rearrangement below runs regardless of this check
-    crossing_detected = any(
-        not (preds_raw_scaled[f'quantile_{quantile_alphas[i]}'] <= preds_raw_scaled[f'quantile_{quantile_alphas[i+1]}']).all()
-        for i in range(len(quantile_alphas) - 1)
-    )
-    if crossing_detected:
-        print('WARNING: quantile result are not sorted and will be post processed')
-
-    stacked = np.stack([preds_raw_scaled[f'quantile_{alpha}'] for alpha in quantile_alphas], axis=0)
-    # axis=0 is the quantile axis (see stack above): np.sort defaults to the
-    # last axis, which would silently sort targets against each other instead
-    sorted_preds = np.sort(stacked, axis=0)
-
-    for ind, alpha in enumerate(quantile_alphas):
-        preds_sorted[f'quantile_{alpha}'] = sorted_preds[ind]
-
-    return preds_sorted
 
 def train_quantile_gbm(model_type: str, db_name: str, train_years: list[int], test_years: list[int], quantile_alphas: list[float], **kwargs):
     """
