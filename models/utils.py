@@ -1,8 +1,8 @@
+import numpy as np
 import pandas as pd
 import torch
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import DataLoader, TensorDataset
-import numpy as np 
 
 from ingestion.utils import get_engine
 from models.features import build_features, build_sequences

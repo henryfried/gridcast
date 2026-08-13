@@ -1,8 +1,9 @@
+import numpy as np
 import torch
 from torch import nn, optim
-import numpy as np
 
-from models.utils import prepare_data, check_quantile_crossing
+from models.utils import check_quantile_crossing, prepare_data
+
 
 class MLP(nn.Module):
     """
