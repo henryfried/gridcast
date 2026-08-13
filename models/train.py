@@ -1,11 +1,11 @@
+import numpy as np
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.multioutput import MultiOutputRegressor
 
 from models.features import build_features
-from models.utils import load_capacity, load_df, scale_features, scale_targets, check_quantile_crossing
+from models.utils import check_quantile_crossing, load_capacity, load_df, scale_features, scale_targets
 
-import numpy as np
 
 def get_model(model_type: str, quantile_alpha: float | None = None, **kwargs):
     """
