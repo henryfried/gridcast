@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import torch
 from sklearn.preprocessing import StandardScaler
@@ -68,3 +69,47 @@ def prepare_data(db_name: str, train_years: list[int], valid_years: list[int], t
         train_loader = batch(X_train_seq, Y_train_seq, batch_size)
         valid_loader = batch(X_valid_seq, Y_valid_seq, batch_size)
         return train_loader, valid_loader, X_test_seq, y_test_seq, y_scaler, test_timestamps
+    
+def check_quantile_crossing(preds_raw_scaled, quantile_alphas):
+    """
+    Detect quantile crossing and fix it via post-hoc monotone rearrangement.
+
+    Each alpha in train_quantile_gbm is fit as an independent model, so
+    nothing structurally guarantees e.g. P10 <= P50 <= P90 per row: this
+    sorts the predicted quantiles back into order after the fact (safe even
+    when nothing crossed, since sorting already-sorted values is a no-op).
+    Rearrangement is a known, valid technique, not a hack (Chernozhukov,
+    Fernandez-Val & Galichon, 2010).
+
+    Parameters
+    ----------
+    preds_raw_scaled : dict[str, np.ndarray]
+        {f"quantile_{alpha}": predictions}, each array shape (n_samples, n_targets).
+    quantile_alphas : list[float]
+        Must already be sorted ascending: crossing is checked pairwise in
+        that order, and the same order is used to stack/unstack below.
+
+    Returns
+    -------
+    dict[str, np.ndarray]
+        Same shape/keys as preds_raw_scaled, values sorted along the
+        quantile axis per (sample, target).
+    """
+    preds_sorted = {}
+    # purely diagnostic: the rearrangement below runs regardless of this check
+    crossing_detected = any(
+        not (preds_raw_scaled[f'quantile_{quantile_alphas[i]}'] <= preds_raw_scaled[f'quantile_{quantile_alphas[i+1]}']).all()
+        for i in range(len(quantile_alphas) - 1)
+    )
+    if crossing_detected:
+        print('WARNING: quantile result are not sorted and will be post processed')
+
+    stacked = np.stack([preds_raw_scaled[f'quantile_{alpha}'] for alpha in quantile_alphas], axis=0)
+    # axis=0 is the quantile axis (see stack above): np.sort defaults to the
+    # last axis, which would silently sort targets against each other instead
+    sorted_preds = np.sort(stacked, axis=0)
+
+    for ind, alpha in enumerate(quantile_alphas):
+        preds_sorted[f'quantile_{alpha}'] = sorted_preds[ind]
+
+    return preds_sorted

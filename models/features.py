@@ -11,7 +11,7 @@ def build_features(df: pd.DataFrame, capacity_df: pd.DataFrame) -> tuple[pd.Data
     """Cyclical time features + capacity-normalized generation targets.
 
     Missing/zero *capacity* for a technology contributes 0, not NaN, to the
-    combined renewable_total_capacity_factor - one missing technology
+    combined renewable_total_capacity_factor: one missing technology
     shouldn't null out an otherwise-valid year. Missing *generation*
     readings still propagate NaN as-is: a reporting gap isn't evidence of
     zero output, so it isn't silently imputed.

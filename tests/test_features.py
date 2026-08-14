@@ -100,13 +100,13 @@ def test_build_features_zero_capacity_does_not_poison_combined_total():
     Regression test: a single technology with zero capacity in a year must
     not turn renewable_total_capacity_factor into NaN for that whole year,
     even though its own individual capacity-factor column correctly is NaN
-    (undefined - there's no such thing as a capacity factor for a technology
+    (undefined: there's no such thing as a capacity factor for a technology
     with no capacity).
 
     Builds one year where wind_generation_off_capacity is 0 (as if offshore
     wind didn't exist yet) while solar and onshore capacity are valid, then
     checks wind_generation_off (the individual target) is NaN as expected,
-    but renewable_total_capacity_factor is not - solar and onshore alone
+    but renewable_total_capacity_factor is not: solar and onshore alone
     still produce a valid combined figure.
     """
     n = 5
@@ -131,7 +131,7 @@ def test_build_features_combined_total_excludes_generation_from_unknown_capacity
     """
     Regression test: a technology's generation must be excluded from
     renewable_total_capacity_factor's numerator whenever its capacity is
-    excluded from the denominator - otherwise generation from a technology
+    excluded from the denominator: otherwise generation from a technology
     with no counted capacity gets credited for free, and the combined
     ratio can exceed 1 (physically impossible for a capacity factor).
 
@@ -171,7 +171,7 @@ def test_build_features_handles_non_default_df_index():
     pd.merge always resets capacity_matched to a fresh 0..n-1 index; if df
     keeps a different index, index-aligned arithmetic between df and
     capacity_matched unions the two disjoint index sets instead of matching
-    rows - producing a wrong-shaped, all-NaN result with no error at all.
+    rows: producing a wrong-shaped, all-NaN result with no error at all.
     """
     n = 5
     df = pd.DataFrame({
@@ -191,7 +191,7 @@ def test_build_features_all_capacity_zero_gives_nan_combined_total():
     """
     Companion regression test: if *every* technology has zero capacity in a
     year (fully degenerate case), renewable_total_capacity_factor must still
-    be NaN - a 0/0 combined ratio is genuinely undefined and must not
+    be NaN: a 0/0 combined ratio is genuinely undefined and must not
     silently resolve to some other value (e.g. 0 or inf).
     """
     n = 5
